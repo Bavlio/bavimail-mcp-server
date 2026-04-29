@@ -20,7 +20,7 @@ export const ERROR_CODES = [
   'auth_forbidden', // upstream 403
   'rate_limit', // upstream 429
   'client_rate_limit', // local emails_send_batch cap
-  'timeout', // local 30s AbortSignal fired
+  'timeout', // local 30s promise timeout fired (SDK does not yet accept AbortSignal)
   'validation', // Zod parse failed
   'upstream', // any other upstream 5xx / unexpected
   'ignored_header', // HTTP transport received unsupported Authorization header

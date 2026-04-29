@@ -115,7 +115,7 @@ In your MCP host (Claude Desktop / Cursor / Cline), once Bavimail is wired up, y
 
 > *"List the last 10 inbound emails to support@my-startup.com and summarize each."*
 
-The LLM picks the right Bavimail tool, asks for confirmation on destructive operations (per the `destructiveHint` annotation on `emails_cancel` and `emails_update_scheduled`), and surfaces structured errors when something fails.
+The LLM picks the right Bavimail tool, asks for confirmation on destructive operations (per the `destructiveHint` annotation on `emails_cancel`), and surfaces structured errors when something fails.
 
 ## Error handling
 
@@ -125,7 +125,7 @@ Tool errors return a structured payload with one of these codes:
 |---|---|
 | `auth_invalid` | API returned 401. Your key is invalid or revoked. |
 | `auth_forbidden` | API returned 403. Your key doesn't have permission for that scope. |
-| `rate_limit` | API returned 429. `retryAfter` is set in seconds. |
+| `rate_limit` | API returned 429. `retryAfter` is set in seconds when the SDK exposes the upstream `Retry-After` header (best-effort; current `bavimail` SDK at v0.3.x does not, so `retryAfter` is typically absent for upstream 429s — back off ~30s if missing). |
 | `client_rate_limit` | The MCP server's local `emails_send_batch` cap (5 per 60s) was exceeded. `retryAfter` is set. |
 | `timeout` | Bavimail API didn't respond within 30s. |
 | `validation` | Input failed Zod schema validation. The `message` lists the offending fields. |
@@ -145,7 +145,7 @@ The API key is read from `BAVIMAIL_API_KEY` at every tool call, not cached at st
 - **v1.0.0 (this release)** — stdio transport with 12 tools.
 - **v1.1.0 (M1b in the AI-Agent Visibility Response plan)** — adds Streamable HTTP transport (single-tenant only). Upgrade with `npm install @bavimail/mcp-server@1.1.0`. **Stdio users on v1.0.0 are not impacted by upgrades; HTTP is purely additive.**
 - **Future minor release after v1.1.0** — `webhooks_list`, `webhooks_create`, `webhooks_delete` tools land once the Bavimail backend ships SSRF defense at webhook URL registration AND dispatch time. Until then, configure webhooks via the [Bavimail dashboard](https://bavimail.com/dashboard/webhooks) so your team controls the destination URLs explicitly.
-- **Future** — `aliases_*`, `suppressions_*`, `attachments_*`, `conversations_*`, `tags_*`, `analytics_*` tools as concrete agent use cases land. MCP Resources, Prompts, Sampling, and Notifications are deferred until proven necessary; the modal agent loop is well-served by Tools alone.
+- **Future** — additional `aliases_*` operations (create/update/delete) plus `suppressions_*`, `attachments_*`, `conversations_*`, `tags_*`, and `analytics_*` tools as concrete agent use cases land. (`aliases_list` ships in v1.0.0.) MCP Resources, Prompts, Sampling, and Notifications are deferred until proven necessary; the modal agent loop is well-served by Tools alone.
 
 Versioning follows SemVer with one explicit carve-out: security-related fixes may change behavior in patch versions. See [`CHANGELOG.md`](./CHANGELOG.md).
 

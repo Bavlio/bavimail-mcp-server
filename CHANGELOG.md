@@ -28,7 +28,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   inbound email content surfaced to the LLM.
 - Distinct error codes (`auth_invalid`, `auth_forbidden`, `rate_limit`,
   `client_rate_limit`, `timeout`, `validation`, `upstream`).
-- 30s `AbortSignal` timeout on every Bavimail API call.
+- 30s local promise timeout on every Bavimail API call (the bavimail SDK at v0.3.x does not yet accept an AbortSignal pass-through, so the underlying fetch may complete server-side after the local timeout fires; tracked as a v1.x followup).
 - Built on the official `bavimail` typed SDK as a peer dependency.
 - README with Claude Desktop, Cursor, and Cline configuration snippets.
 
