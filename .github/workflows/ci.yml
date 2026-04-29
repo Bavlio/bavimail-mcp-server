@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: build + typecheck + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Build
+        run: bun run build
+
+      - name: Test
+        run: bun run test
+
+      - name: Bundle size gate (size-limit)
+        run: bun run size
+
+      - name: Smoke test (--help exits 0 with 12 tools listed)
+        env:
+          BAVIMAIL_API_KEY: smoke-test-key-not-real
+        # Use bun --input-type=module per critical-patterns C4 — node + ts-node
+        # have an inline-TS module-mode bug that fires on edge configurations.
+        run: |
+          set -euo pipefail
+          out=$(node ./dist/index.js --help)
+          echo "$out"
+          echo "$out" | grep -q "Available tools (12):"
+          echo "$out" | grep -q "emails_send"
+          echo "$out" | grep -q "domains_verify"

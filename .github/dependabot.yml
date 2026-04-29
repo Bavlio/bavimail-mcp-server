@@ -1,0 +1,31 @@
+# Dependabot config — per AC2 / architecture NB2:
+# Open a PR on any @modelcontextprotocol/sdk bump (we're pinned to ~1.29.0
+# so only patches auto-merge; minor bumps come through here for review).
+# Open PRs on any peer-dep `bavimail` SDK bump too (0.x means breaking changes
+# can land in any minor — never auto-merge that one).
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+    groups:
+      mcp-sdk:
+        patterns:
+          - "@modelcontextprotocol/*"
+      bavimail-sdk:
+        patterns:
+          - "bavimail"
+      dev-deps:
+        dependency-type: "development"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "ci"
