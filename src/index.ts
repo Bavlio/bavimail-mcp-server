@@ -9,7 +9,12 @@
 
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
-import { MissingApiKeyError, resolveApiKey } from './lib/auth.js'
+import {
+  InvalidApiBaseUrlError,
+  MissingApiKeyError,
+  resolveApiBaseUrl,
+  resolveApiKey,
+} from './lib/auth.js'
 import { createServer, SERVER_VERSION, SERVER_NAME } from './server.js'
 import { TOOL_NAMES } from './tools/annotations.js'
 
@@ -39,6 +44,34 @@ Documentation:
 For end-to-end setup with Claude Desktop, Cursor, or Cline, see the README.
 `
 
+/**
+ * Write a JSON-RPC structured error to stdout and resolve only after the
+ * write callback fires. Per Node docs, `process.exit()` immediately
+ * after `process.stdout.write` on a piped stdout can truncate the
+ * payload before delivery; awaiting the write callback prevents that.
+ */
+function writeStructuredErrorAndExit(message: string): Promise<never> {
+  return new Promise((resolve, reject) => {
+    const payload = {
+      jsonrpc: '2.0',
+      error: { code: -32099, message },
+    }
+    process.stdout.write(JSON.stringify(payload) + '\n', (err) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      // Set exitCode + return so the event loop drains naturally; do
+      // not call process.exit() because that bypasses pending writes.
+      process.exitCode = 1
+      // Resolve after a microtask so any in-flight stderr writes also
+      // drain. The `as never` is a Promise narrowing convenience —
+      // callers always exit.
+      queueMicrotask(() => resolve(undefined as never))
+    })
+  })
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2)
 
@@ -51,21 +84,17 @@ async function main(): Promise<void> {
     process.exit(0)
   }
 
-  // Per AC9: fail-fast if API key missing. Write a structured MCP error
-  // to stdout (so the host parses + surfaces it) before exiting.
+  // Per AC9 (round-7 expanded): fail-fast at startup for any
+  // configuration error that would make the first tool call fail
+  // confusingly. Currently catches MissingApiKeyError (no key) +
+  // InvalidApiBaseUrlError (non-HTTPS BAVIMAIL_API_BASE_URL).
   try {
     resolveApiKey()
+    resolveApiBaseUrl()
   } catch (err) {
-    if (err instanceof MissingApiKeyError) {
-      const payload = {
-        jsonrpc: '2.0',
-        error: {
-          code: -32099,
-          message: err.message,
-        },
-      }
-      process.stdout.write(JSON.stringify(payload) + '\n')
-      process.exit(1)
+    if (err instanceof MissingApiKeyError || err instanceof InvalidApiBaseUrlError) {
+      await writeStructuredErrorAndExit(err.message)
+      return
     }
     throw err
   }

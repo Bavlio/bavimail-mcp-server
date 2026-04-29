@@ -11,6 +11,14 @@
  * human reading the conversation log understands what's happening.
  *
  * T-MCP-9 verifies the envelope structure.
+ *
+ * Known v1.0 limitation (Codex edgecase HIGH-4): there is no response
+ * size cap on the inbound payload. SDK types show `bodyText`, `bodyHtml`,
+ * `headers`, and `providerMetadata` as untrusted free-form strings; a
+ * single attacker-crafted email could exceed the LLM's context budget.
+ * Truncation/summarization metadata is tracked as a v1.x followup;
+ * operators should treat oversized inbound emails (over ~50 KB body) as
+ * a known DoS vector against the LLM's context budget until then.
  */
 
 export interface UntrustedThirdPartyContent<T = unknown> {

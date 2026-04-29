@@ -10,7 +10,9 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import {
   CallToolRequestSchema,
+  ErrorCode,
   ListToolsRequestSchema,
+  McpError,
 } from '@modelcontextprotocol/sdk/types.js'
 import { zodToJsonSchema } from 'zod-to-json-schema'
 
@@ -40,8 +42,14 @@ export function createServer(): Server {
   })
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const name = request.params.name as ToolName
-    const result = await callTool(name, request.params.arguments)
+    const name = request.params.name
+    if (!(name in TOOL_INPUT_SCHEMAS)) {
+      // Per MCP spec: unknown tool is a JSON-RPC protocol error, not a
+      // successful tool result with `isError: true`. Throwing McpError
+      // surfaces -32602 InvalidParams to the host.
+      throw new McpError(ErrorCode.InvalidParams, `Unknown tool: ${name}`)
+    }
+    const result = await callTool(name as ToolName, request.params.arguments)
     if (result.ok) {
       return {
         content: [{ type: 'text', text: JSON.stringify(result.data) }],
