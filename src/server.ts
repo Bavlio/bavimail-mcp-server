@@ -43,10 +43,12 @@ export function createServer(): Server {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const name = request.params.name
-    if (!(name in TOOL_INPUT_SCHEMAS)) {
+    if (!Object.hasOwn(TOOL_INPUT_SCHEMAS, name)) {
       // Per MCP spec: unknown tool is a JSON-RPC protocol error, not a
       // successful tool result with `isError: true`. Throwing McpError
-      // surfaces -32602 InvalidParams to the host.
+      // surfaces -32602 InvalidParams to the host. `Object.hasOwn` (not
+      // `in`) avoids prototype-chain false positives for `__proto__`,
+      // `toString`, `constructor`, etc.
       throw new McpError(ErrorCode.InvalidParams, `Unknown tool: ${name}`)
     }
     const result = await callTool(name as ToolName, request.params.arguments)
