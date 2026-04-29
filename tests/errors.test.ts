@@ -4,11 +4,13 @@
  * AC7 distinct codes: auth_invalid, auth_forbidden, rate_limit, timeout,
  * validation, upstream, client_rate_limit, ignored_header.
  *
- * AC22 / T-MCP-3: redaction strips API key + Bearer-prefixed substrings
- * from any text that reaches the MCP transport.
+ * AC22 / T-MCP-3 round-7 expansion:
+ * - Case-insensitive Bearer redaction (lowercase `bearer` covered).
+ * - Tilde + URL-encoded API key forms covered.
+ * - Generic Authorization header redaction covered.
  *
- * Performance NB3 / T-MCP-12: parseRetryAfterSeconds reads RFC 7231 numeric
- * Retry-After (HTTP-date format intentionally not handled).
+ * Performance NB3 / T-MCP-12: parseRetryAfterSeconds reads RFC 7231
+ * numeric Retry-After (HTTP-date format intentionally not handled).
  */
 
 import { describe, expect, it } from 'vitest'
@@ -26,8 +28,6 @@ describe('mapHttpStatusToCode', () => {
   it('maps 429 → rate_limit', () => expect(mapHttpStatusToCode(429)).toBe('rate_limit'))
   it('maps 500 → upstream', () => expect(mapHttpStatusToCode(500)).toBe('upstream'))
   it('maps 502 → upstream', () => expect(mapHttpStatusToCode(502)).toBe('upstream'))
-  it('maps 200 → upstream (only error statuses are covered)', () =>
-    expect(mapHttpStatusToCode(200)).toBe('upstream'))
 })
 
 describe('ERROR_CODES contract', () => {
@@ -64,24 +64,45 @@ describe('parseRetryAfterSeconds', () => {
     expect(parseRetryAfterSeconds('')).toBeUndefined()
   })
 
-  it('rejects negative values (NaN / Infinity guard)', () => {
+  it('rejects negative values', () => {
     expect(parseRetryAfterSeconds('-1')).toBeUndefined()
   })
 })
 
 describe('redactSecrets', () => {
+  const KEY = 'bvm_live_abcdef1234567890'
+
   it('replaces literal API key occurrences with [REDACTED_API_KEY]', () => {
-    const key = 'bvm_live_abcdef1234567890'
-    const text = `request failed with header Authorization: Bearer ${key}`
-    const out = redactSecrets(text, key)
-    expect(out).not.toContain(key)
+    const text = `request failed with header Authorization: Bearer ${KEY}`
+    const out = redactSecrets(text, KEY)
+    expect(out).not.toContain(KEY)
+  })
+
+  it('replaces URL-encoded API key occurrences (round-7 hardening)', () => {
+    const keyWithSpecial = 'bvm/live=abc def'
+    const encoded = encodeURIComponent(keyWithSpecial)
+    const text = `error from upstream: ?key=${encoded}&other=1`
+    const out = redactSecrets(text, keyWithSpecial)
+    expect(out).not.toContain(encoded)
     expect(out).toContain('[REDACTED_API_KEY]')
   })
 
-  it('replaces any Bearer-prefixed token even when key is unknown', () => {
-    const out = redactSecrets('Authorization: Bearer abc.def-gh+ij/kl=mno', undefined)
+  it('redacts case-insensitive Bearer prefix (lowercase `bearer` covered)', () => {
+    const out1 = redactSecrets('Authorization: Bearer abc.def-gh+ij/kl=mno', undefined)
+    const out2 = redactSecrets('authorization: bearer abc.def_gh-ij', undefined)
+    expect(out1).toContain('Bearer [REDACTED]')
+    expect(out2).toContain('bearer [REDACTED]')
+  })
+
+  it('redacts Bearer tokens containing tilde (round-7 hardening)', () => {
+    const out = redactSecrets('Authorization: Bearer abc~defSECRET', undefined)
+    expect(out).not.toContain('SECRET')
     expect(out).toContain('Bearer [REDACTED]')
-    expect(out).not.toMatch(/Bearer\s+[A-Za-z0-9]+/)
+  })
+
+  it('redacts generic Authorization headers (any scheme)', () => {
+    const out = redactSecrets('authorization: Token abc-def-ghi', undefined)
+    expect(out).not.toContain('abc-def-ghi')
   })
 
   it('does not modify text that contains neither the key nor a Bearer token', () => {

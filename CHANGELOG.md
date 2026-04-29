@@ -14,10 +14,11 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 - Stdio transport for MCP-compatible AI agents (Claude Desktop, Cursor, Cline).
-- 12 tools covering the modal send/receive/domain agent loop:
-  - `emails_send`, `emails_send_batch`, `emails_update_scheduled`, `emails_cancel`,
-    `emails_get`, `emails_list_recent`
+- 12 tools covering the modal send/receive/identity/domain agent loop:
+  - `emails_send`, `emails_send_batch`, `emails_cancel`, `emails_get`,
+    `emails_list_recent`
   - `inbound_emails_list`, `inbound_emails_get`
+  - `aliases_list` (per-agent inbox identities; foundational for `emails_send`)
   - `domains_create`, `domains_list`, `domains_get_dns_status`, `domains_verify`
 - MCP tool annotations on every tool (`readOnlyHint`, `destructiveHint`,
   `idempotentHint`, `openWorldHint`) per the MCP specification.
@@ -43,3 +44,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   additive.
 - `webhooks_*` tools land in a future minor release once the Bavimail
   backend ships SSRF defense at webhook URL registration AND dispatch time.
+- `emails_update_scheduled` is intentionally not in v1.0.0: the bavimail
+  SDK at v0.3.x has no `emails.update` method, and the cancel + resend
+  pattern is sufficient. Will surface a tool when the SDK adds the
+  capability.

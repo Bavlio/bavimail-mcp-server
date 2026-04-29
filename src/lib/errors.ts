@@ -1,18 +1,18 @@
 /**
  * Structured error codes returned to MCP hosts.
  *
- * Per AC7: distinct codes so the LLM (and the human who reads the conversation
- * log) can reason about WHY a call failed. Codes map from upstream HTTP
- * statuses + local timeouts + Zod validation failures.
+ * Per AC7: distinct codes so the LLM (and the human who reads the
+ * conversation log) can reason about WHY a call failed. Codes map from
+ * upstream HTTP statuses + local timeouts + Zod validation failures.
  *
- * Per AC6: tools never collapse an error into an empty array. The shape of
- * a tool result is always one of:
+ * Per AC6: tools never collapse an error into an empty array. The shape
+ * of a tool result is always one of:
  *   - { ok: true, data: ... }
  *   - { ok: false, code: '...', message: '...', retryAfter?: number }
  *
- * Per AC22 / T-MCP-3: error messages MUST NEVER contain the API key value or
- * a Bearer-prefixed substring. The redaction helpers below enforce this on
- * every value that reaches the MCP transport.
+ * Per AC22 / T-MCP-3: error messages MUST NEVER contain the API key value
+ * or a Bearer-prefixed substring. The redaction helpers below enforce this
+ * on every value that reaches the MCP transport.
  */
 
 export const ERROR_CODES = [
@@ -55,16 +55,28 @@ export function parseRetryAfterSeconds(headerValue: string | null | undefined): 
 }
 
 /**
- * Redact API key + Bearer-prefixed substrings from any string before it's
- * surfaced to the MCP host. T-MCP-3 asserts no such substring appears in
- * any tool response.
+ * Redact API key + Bearer-prefixed substrings from any string before
+ * it's surfaced to the MCP host. T-MCP-3 asserts no such substring
+ * appears in any tool response.
+ *
+ * Coverage:
+ * - Exact apiKey occurrences (literal AND URL-encoded).
+ * - `Bearer <token>` (case-insensitive; token char set includes
+ *   alphanumerics + `~`, `.`, `_`, `-`, `+`, `/`, `=`).
+ * - `Authorization: <scheme> <token>` (case-insensitive scheme,
+ *   any non-whitespace token).
  */
 export function redactSecrets(text: string, apiKey: string | undefined): string {
   let out = text
   if (apiKey && apiKey.length > 0) {
-    // Replace exact key occurrences (case-sensitive; keys are hex-like)
     out = out.split(apiKey).join('[REDACTED_API_KEY]')
+    const encoded = encodeURIComponent(apiKey)
+    if (encoded !== apiKey) out = out.split(encoded).join('[REDACTED_API_KEY]')
   }
-  out = out.replace(/Bearer\s+[A-Za-z0-9._\-+/]+=*/g, 'Bearer [REDACTED]')
+  // Case-insensitive Bearer-prefix redaction; token char set covers
+  // base64url + `~` + `.` (JWT segments use these) + `=` padding.
+  out = out.replace(/(\bbearer\s+)([A-Za-z0-9._~\-+/]+=*)/gi, '$1[REDACTED]')
+  // Generic Authorization header redaction (any scheme).
+  out = out.replace(/(\bauthorization\s*:\s*\S+\s+)(\S+)/gi, '$1[REDACTED]')
   return out
 }

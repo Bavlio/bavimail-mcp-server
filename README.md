@@ -78,15 +78,15 @@ Add to your Cline MCP settings (Command Palette → "Cline: Edit MCP Settings"):
 
 | Tool | Read-only | Destructive | Idempotent | Description |
 |---|---|---|---|---|
-| `emails_send` | no | no | no | Send a single transactional email. |
-| `emails_send_batch` | no | no | no | Send up to 100 emails in one call. Subject to a per-process rate limit (5 batch calls per 60s window). |
-| `emails_update_scheduled` | no | yes | yes | Reschedule a queued email. |
-| `emails_cancel` | no | yes | yes | Cancel a queued email. |
+| `emails_send` | no | no | no | Send a single transactional email. Requires `aliasId` (call `aliases_list` first to discover available identities). |
+| `emails_send_batch` | no | no | no | Send up to 100 emails in one call. Per-process rate limit: 5 batch calls per 60s window. |
+| `emails_cancel` | no | yes | yes | Cancel a queued/scheduled email. To reschedule, cancel and resend. |
 | `emails_get` | yes | no | yes | Look up a single email by id. |
 | `emails_list_recent` | yes | no | yes | List recent outbound emails. |
 | `inbound_emails_list` | yes | no | yes | List inbound emails. **Content wrapped as untrusted.** |
 | `inbound_emails_get` | yes | no | yes | Fetch a single inbound email. **Content wrapped as untrusted.** |
-| `domains_create` | no | no | no | Register a new sending domain. |
+| `aliases_list` | yes | no | yes | List per-agent inbox identities (aliases). The `id` of each is what you pass as `aliasId` in `emails_send`. |
+| `domains_create` | no | no | no | Register a new sending domain (currently AWS-provider only). |
 | `domains_list` | yes | no | yes | List sending domains. |
 | `domains_get_dns_status` | yes | no | yes | Check DNS verification status. |
 | `domains_verify` | no | no | yes | Trigger an immediate DNS re-check. |
