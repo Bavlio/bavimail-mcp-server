@@ -1,0 +1,79 @@
+{
+  "name": "@bavimail/mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Bavimail. Send + receive + manage email from Claude Desktop, Cursor, Cline, and any MCP-compatible AI agent.",
+  "license": "MIT",
+  "author": "Bavimail (https://bavimail.com)",
+  "homepage": "https://github.com/Bavlio/bavimail-mcp-server#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bavlio/bavimail-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bavlio/bavimail-mcp-server/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "bavimail",
+    "email",
+    "email-api",
+    "ai-agents",
+    "claude",
+    "claude-desktop",
+    "cursor",
+    "cline"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "bavimail-mcp-server": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'no linter configured yet'",
+    "size": "size-limit",
+    "prepublishOnly": "bun run build && bun run typecheck && bun run test && bun run size"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "~1.29.0",
+    "zod": "~3.23.0",
+    "zod-to-json-schema": "~3.23.0"
+  },
+  "peerDependencies": {
+    "bavimail": "~0.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@size-limit/file": "^11.1.0",
+    "bavimail": "~0.3.6",
+    "msw": "^2.6.0",
+    "size-limit": "^11.1.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.0"
+  },
+  "size-limit": [
+    {
+      "name": "dist (unbundled)",
+      "path": "dist/**/*.js",
+      "limit": "5 MB"
+    }
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
