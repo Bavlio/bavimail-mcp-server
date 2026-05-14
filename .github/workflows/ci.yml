@@ -19,7 +19,7 @@ jobs:
     # rest of the Bavlio org's PRIVATE repos.
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
