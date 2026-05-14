@@ -12,7 +12,7 @@ permissions:
 jobs:
   build-and-test:
     name: build + typecheck + test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, bavlio-deploy]
     steps:
       - uses: actions/checkout@v4
 
