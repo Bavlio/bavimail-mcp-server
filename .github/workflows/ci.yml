@@ -12,7 +12,12 @@ permissions:
 jobs:
   build-and-test:
     name: build + typecheck + test
-    runs-on: [self-hosted, bavlio-deploy]
+    # NOTE: This repo is public. The org's self-hosted runner group has
+    # allows_public_repositories=false (GitHub security default — prevents
+    # untrusted PRs from running on the EC2 self-hosted runner). Keep CI on
+    # GitHub-hosted ubuntu-latest here. Self-hosted migration applied to the
+    # rest of the Bavlio org's PRIVATE repos.
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
