@@ -57,13 +57,13 @@
     "bavimail": "~0.3.6"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@size-limit/file": "^11.1.0",
+    "@types/node": "^25.9.1",
+    "@size-limit/file": "^12.1.0",
     "bavimail": "~0.3.6",
     "msw": "^2.6.0",
-    "size-limit": "^11.1.0",
-    "typescript": "^5.6.0",
-    "vitest": "^3.2.0"
+    "size-limit": "^12.1.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6"
   },
   "size-limit": [
     {
