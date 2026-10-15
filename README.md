@@ -1,8 +1,8 @@
 # Bavimail MCP Server
 
-A [Model Context Protocol](https://modelcontextprotocol.io) server for [Bavimail](https://bavimail.com), the email API built for AI agents. Drop it into Claude Desktop, Cursor, Cline, or any MCP-compatible host and your agent can send transactional email, receive and parse inbound email, and manage sending domains directly from the conversation.
+An email MCP server for AI agents. Add it to Claude Desktop, Cursor, Cline, or any [Model Context Protocol](https://modelcontextprotocol.io) host and your agent can send transactional email, read inbound email, and manage sending domains through [Bavimail](https://bavimail.com/?utm_source=github&utm_medium=readme&utm_campaign=bavimail-mcp-server), the email API built for AI agents. 12 tools, free plan included: 6,000 emails a month with no card.
 
-> **Status: v1.0.0** ships stdio transport with 12 tools. v1.1.0 adds Streamable HTTP transport (single-tenant). See [Roadmap](#roadmap).
+> **Status: live, v1.0.1.** Stdio transport with 12 tools. Streamable HTTP transport is planned for v1.1.0; see [Roadmap](#roadmap).
 
 ## Install
 
@@ -10,7 +10,7 @@ A [Model Context Protocol](https://modelcontextprotocol.io) server for [Bavimail
 npx @bavimail/mcp-server --help
 ```
 
-The package has no global install requirement; `npx` runs the latest version from npm. Pin to a specific version with `@bavimail/mcp-server@1.0.0` if you want reproducible builds.
+The package has no global install requirement; `npx` runs the latest version from npm. Pin to a specific version with `@bavimail/mcp-server@1.0.1` if you want reproducible builds.
 
 You'll need a Bavimail API key. Get one at [bavimail.com/dashboard/api-keys](https://bavimail.com/dashboard/api-keys).
 
@@ -142,7 +142,8 @@ The API key is read from `BAVIMAIL_API_KEY` at every tool call, not cached at st
 
 ## Roadmap
 
-- **v1.0.0 (this release)** — stdio transport with 12 tools.
+- **v1.0.0** — stdio transport with 12 tools.
+- **v1.0.1 (this release)** — MCP Registry metadata (`mcpName`, `server.json`). No tool changes.
 - **v1.1.0 (M1b in the AI-Agent Visibility Response plan)** — adds Streamable HTTP transport (single-tenant only). Upgrade with `npm install @bavimail/mcp-server@1.1.0`. **Stdio users on v1.0.0 are not impacted by upgrades; HTTP is purely additive.**
 - **Future minor release after v1.1.0** — `webhooks_list`, `webhooks_create`, `webhooks_delete` tools land once the Bavimail backend ships SSRF defense at webhook URL registration AND dispatch time. Until then, configure webhooks via the [Bavimail dashboard](https://bavimail.com/dashboard/webhooks) so your team controls the destination URLs explicitly.
 - **Future** — additional `aliases_*` operations (create/update/delete) plus `suppressions_*`, `attachments_*`, `conversations_*`, `tags_*`, and `analytics_*` tools as concrete agent use cases land. (`aliases_list` ships in v1.0.0.) MCP Resources, Prompts, Sampling, and Notifications are deferred until proven necessary; the modal agent loop is well-served by Tools alone.

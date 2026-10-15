@@ -1,6 +1,7 @@
 {
   "name": "@bavimail/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "mcpName": "com.bavimail/mcp-server",
   "description": "Model Context Protocol server for Bavimail. Send + receive + manage email from Claude Desktop, Cursor, Cline, and any MCP-compatible AI agent.",
   "license": "MIT",
   "author": "Bavimail (https://bavimail.com)",
@@ -22,7 +23,10 @@
     "claude",
     "claude-desktop",
     "cursor",
-    "cline"
+    "cline",
+    "claude-code",
+    "mcp-server",
+    "email-mcp"
   ],
   "type": "module",
   "main": "./dist/index.js",

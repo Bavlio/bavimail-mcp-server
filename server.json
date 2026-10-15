@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.bavimail/mcp-server",
+  "title": "Bavimail",
+  "description": "Email for AI agents: send email, read inbound email, and manage aliases and domains.",
+  "version": "1.0.1",
+  "websiteUrl": "https://bavimail.com",
+  "repository": {
+    "url": "https://github.com/Bavlio/bavimail-mcp-server",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@bavimail/mcp-server",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "BAVIMAIL_API_KEY",
+          "description": "Bavimail API key from bavimail.com/dashboard/api-keys",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}
