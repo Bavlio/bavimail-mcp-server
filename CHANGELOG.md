@@ -10,6 +10,13 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.0.1] — 2026-10-15
+
+### Added
+- `mcpName` in package.json and a `server.json` manifest, so the package can be
+  listed in the official MCP Registry as `com.bavimail/mcp-server`. No change
+  to the tools or their behaviour.
+
 ## [1.0.0] — 2026-04-29
 
 ### Added

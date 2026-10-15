@@ -22,7 +22,7 @@ import { callTool } from './tools/handlers.js'
 import { TOOL_INPUT_SCHEMAS, type ToolName } from './tools/schemas.js'
 
 export const SERVER_NAME = 'bavimail-mcp-server'
-export const SERVER_VERSION = '1.0.0'
+export const SERVER_VERSION = '1.0.1'
 
 export function createServer(): Server {
   const server = new Server(
