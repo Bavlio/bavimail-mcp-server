@@ -1,8 +1,6 @@
 # Bavimail MCP Server
 
-An email MCP server for AI agents. Add it to Claude Desktop, Cursor, Cline, or any [Model Context Protocol](https://modelcontextprotocol.io) host and your agent can send transactional email, read inbound email, and manage sending domains through [Bavimail](https://bavimail.com/?utm_source=github&utm_medium=readme&utm_campaign=bavimail-mcp-server), the email API built for AI agents. 12 tools, free plan included: 6,000 emails a month with no card.
-
-> **Status: live, v1.0.1.** Stdio transport with 12 tools. Streamable HTTP transport is planned for v1.1.0; see [Roadmap](#roadmap).
+> **No longer maintained.** This package is deprecated on npm and isn't supported. Use the Bavimail REST API or the TypeScript and Python SDKs ([quickstart](https://bavimail.com/docs/quickstart)).
 
 ## Install
 
